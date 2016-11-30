@@ -234,7 +234,7 @@ if ( !class_exists( 'avia_sc_tell_a_friend' ) )
 
 					array(
 						"type" 			=> "tab",
-						"name" 			=> __("Colors",'avia_framework'),
+						"name" 			=> __("Colors", 'avia_framework'),
 						'nodescription' => true
 					),
 
@@ -336,11 +336,12 @@ if ( !class_exists( 'avia_sc_tell_a_friend' ) )
 				"label_first"  			=> true,
 				"redirect"				=> $redirect,
 				"placeholder"			=> $hide_labels,
-				"numeric_names"			=> true
+				"numeric_names"			=> true,
+				"btn_heading" 			=> $title ? $title : ""
 			);
 			
 			$content = str_replace("\,", "&#44;", $content);
-			
+
 			// Form fields passed by the user
 			$form_fields = $this->helper_array2form_fields(ShortcodeHelper::shortcode2array($content, 1));
 
@@ -369,9 +370,34 @@ if ( !class_exists( 'avia_sc_tell_a_friend' ) )
 			// Create form eleemnts
 			$contact_form = new avia_form($form_args);
 			$contact_form->create_elements($form_fields);
-			$output = $contact_form->display_form(true) . var_dump($contact_form);
 
-			return $output . "<script>console.log('f');</script>";
+			//$contact_form->submit_attr = send_email_to_friends();
+			$output .= '<input id="taf-btn" type="button" value="' . $form_args['btn_heading'] . '" onclick="ShowTellAFriendForm(this.id);" class="button"><br /><br />';
+			$output .= '<div id="tell-a-friend" style="display: none;">' . $contact_form->display_form(true) . '</div>';
+			$output .= '<p class="hidden"><input type="text" name="tell_a_friend_url" class="hidden " id="tell-a-friend-url" value=""></p>
+<script>
+
+	jQuery("form.avia_ajax_form.av-form-labels-visible input.button:submit").click(function()
+	{
+		jQuery("p.hidden input#tell-a-friend-url.hidden:text").val(window.location.href);
+		var $input = jQuery("p.hidden input#tell-a-friend-url.hidden:text");
+		$input.attr("value", window.location.href);
+	});
+
+	function ShowTellAFriendForm(clickedElementId)
+	{
+		if(clickedElementId == "taf-btn" && document.getElementById("tell-a-friend").style.display == "none")
+		{
+			document.getElementById("tell-a-friend").style.display = "block";
+		}
+		else if(clickedElementId == "taf-btn" && document.getElementById("tell-a-friend").style.display == "block")
+		{
+			document.getElementById("tell-a-friend").style.display = "none";
+		}
+	}
+</script>';
+
+			return $output;
 		}
 
 		function send_email_to_friends()
